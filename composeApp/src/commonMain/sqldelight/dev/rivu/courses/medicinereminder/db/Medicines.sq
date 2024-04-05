@@ -1,0 +1,29 @@
+import dev.rivu.courses.medicinereminder.data.models.FoodOrder;
+import dev.rivu.courses.medicinereminder.data.models.MedicineTime;
+import kotlin.Boolean;
+import kotlin.collections.List;
+
+CREATE TABLE Medicines (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    foodOrder TEXT AS FoodOrder NOT NULL,
+    times TEXT AS List<MedicineTime> NOT NULL,
+    updatedOn INTEGER NOT NULL,
+    insertedOn INTEGER NOT NULL,
+    isSynced INTEGER AS Boolean NOT NULL
+);
+
+addMedicine:
+INSERT OR REPLACE INTO Medicines (name, foodOrder, times, updatedOn, insertedOn, isSynced)
+VALUES (?, ?, ?, ?, ?, ?);
+
+
+addMedicineLocal:
+INSERT OR REPLACE INTO Medicines (name, foodOrder, times, updatedOn, insertedOn, isSynced)
+VALUES (?, ?, ?, ?, ?, "false");
+
+getMedicineByName:
+SELECT Medicines.* FROM Medicines WHERE Medicines.name = ?;
+
+getMedicineById:
+SELECT Medicines.* FROM Medicines WHERE Medicines.id = ?;
