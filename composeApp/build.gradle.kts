@@ -12,7 +12,7 @@ plugins {
 
 sqldelight {
     databases {
-        create("medicines") {
+        create("MedicinesDB") {
             packageName.set("dev.rivu.courses.medicinereminder.db")
             version = 1
         }
@@ -96,6 +96,13 @@ kotlin {
 
             // Transitions
             implementation("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
+
+            //arrow
+            implementation("io.arrow-kt:arrow-core:1.2.2")
+            implementation("io.arrow-kt:arrow-core-serialization:1.2.2")
+
+            //date-time
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0-RC.2")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

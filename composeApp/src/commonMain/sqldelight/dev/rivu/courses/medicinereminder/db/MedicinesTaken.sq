@@ -3,10 +3,9 @@ import kotlin.Boolean;
 
 CREATE TABLE MedicinesTaken (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    medicineId INTEGER NOT NULL,
+    medicineTimeId INTEGER NOT NULL,
     date TEXT NOT NULL,
     time INTEGER NOT NULL,
-    medicineTime TEXT AS MedicineTime NOT NULL,
     isSynced INTEGER AS Boolean NOT NULL
 );
 
@@ -14,12 +13,15 @@ getMedicinesTakenForDate:
 SELECT MedicinesTaken.* FROM MedicinesTaken WHERE MedicinesTaken.date = ?;
 
 isMedicineTakenForDate:
-SELECT COUNT(MedicinesTaken.medicineId) FROM MedicinesTaken WHERE MedicinesTaken.date = ? AND MedicinesTaken.id = ? AND MedicinesTaken.medicineTime = ?;
+SELECT COUNT(MedicinesTaken.medicineTimeId) FROM MedicinesTaken WHERE MedicinesTaken.date = ? AND MedicinesTaken.medicineTimeId = ?;
 
 markMedicineAsTaken:
-INSERT OR REPLACE INTO MedicinesTaken (medicineId, date, time, medicineTime, isSynced)
-VALUES (?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO MedicinesTaken (medicineTimeId, date, time, isSynced)
+VALUES (?, ?, ?, ?);
 
 markMedicineAsTakenLocal:
-INSERT OR REPLACE INTO MedicinesTaken (medicineId, date, time, medicineTime, isSynced)
-VALUES (?, ?, ?, ?, "false");
+INSERT OR REPLACE INTO MedicinesTaken (medicineTimeId, date, time, isSynced)
+VALUES (?, ?, ?, "false");
+
+getMedicineTakenTime:
+SELECT MedicinesTaken.time FROM MedicinesTaken WHERE MedicinesTaken.date = ? AND MedicinesTaken.medicineTimeId = ?;

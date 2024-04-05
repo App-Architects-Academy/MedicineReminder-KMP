@@ -5,25 +5,47 @@ import kotlin.collections.List;
 
 CREATE TABLE Medicines (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL UNIQUE ON CONFLICT REPLACE,
     foodOrder TEXT AS FoodOrder NOT NULL,
-    times TEXT AS List<MedicineTime> NOT NULL,
     updatedOn INTEGER NOT NULL,
     insertedOn INTEGER NOT NULL,
     isSynced INTEGER AS Boolean NOT NULL
 );
 
+CREATE TABLE MedicineTimes (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    medicineId INTEGER NOT NULL,
+    medicineTime TEXT AS MedicineTime NOT NULL,
+    UNIQUE(medicineId, medicineTime) ON CONFLICT REPLACE
+);
+
 addMedicine:
-INSERT OR REPLACE INTO Medicines (name, foodOrder, times, updatedOn, insertedOn, isSynced)
-VALUES (?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO Medicines (name, foodOrder, updatedOn, insertedOn, isSynced)
+VALUES (?, ?, ?, ?, ?);
 
 
 addMedicineLocal:
-INSERT OR REPLACE INTO Medicines (name, foodOrder, times, updatedOn, insertedOn, isSynced)
-VALUES (?, ?, ?, ?, ?, "false");
+INSERT OR REPLACE INTO Medicines (name, foodOrder, updatedOn, insertedOn, isSynced)
+VALUES (?, ?, ?, ?, "false");
+
+addMedicineTime:
+INSERT OR REPLACE INTO MedicineTimes (medicineId, medicineTime)
+VALUES (?, ?);
 
 getMedicineByName:
 SELECT Medicines.* FROM Medicines WHERE Medicines.name = ?;
 
 getMedicineById:
 SELECT Medicines.* FROM Medicines WHERE Medicines.id = ?;
+
+getMedicineTimes:
+SELECT MedicineTimes.* FROM MedicineTimes WHERE MedicineTimes.medicineId = ?;
+
+getAllMedicineTimes:
+SELECT * FROM Medicines LEFT JOIN MedicineTimes WHERE MedicineTimes.medicineId = Medicines.id;
+
+getAllMedicines:
+SELECT Medicines.* FROM Medicines;
+
+getMedicineTimeId:
+SELECT MedicineTimes.id FROM MedicineTimes WHERE MedicineTimes.medicineId = ? AND MedicineTimes.medicineTime = ?;
