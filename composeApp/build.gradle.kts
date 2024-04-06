@@ -20,6 +20,9 @@ sqldelight {
 }
 
 kotlin {
+    applyDefaultHierarchyTemplate()
+
+
     @OptIn(ExperimentalWasmDsl::class)
     /*wasmJs {
         moduleName = "composeApp"
@@ -106,9 +109,6 @@ kotlin {
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
-        }
-
-        sourceSets.jvmMain.dependencies {
             implementation(libs.sqlite.driver)
         }
     }

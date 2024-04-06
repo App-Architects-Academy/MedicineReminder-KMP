@@ -1,6 +1,7 @@
 package dev.rivu.courses.medicinereminder.data.local
 
 import arrow.core.Either
+import arrow.core.flatten
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import dev.rivu.courses.medicinereminder.data.MedicineDS
@@ -15,8 +16,8 @@ import kotlinx.datetime.Instant
 class LocalMedicineDS(
     private val medicinesDB: MedicinesDB
 ) : MedicineDS {
-    override fun getAllMedicines(): Either<Throwable, List<Medicine>> = Either.catch {
-        medicinesDB.transactionWithResult {
+    override suspend fun getAllMedicines(): Either<Throwable, List<Medicine>> = Either.catch {
+        val medicines = medicinesDB.transactionWithResult {
             medicinesDB.medicinesQueries.getAllMedicines().executeAsList()
                 .map { medicine ->
                     val times = medicinesDB.medicinesQueries.getMedicineTimes(medicine.id).executeAsList()
@@ -33,9 +34,16 @@ class LocalMedicineDS(
                     )
                 }
         }
-    }
+        either {
+            ensure(medicines.isNotEmpty()) {
+                RuntimeException("No medicines found")
+            }
 
-    override fun getMedicineById(id: Long): Either<Throwable, Medicine> = Either.catch {
+            medicines
+        }
+    }.flatten()
+
+    override suspend fun getMedicineById(id: Long): Either<Throwable, Medicine> = Either.catch {
         medicinesDB.medicinesQueries.getMedicineById(id).executeAsOne()
     }.map { medicine ->
         val times = medicinesDB.medicinesQueries.getMedicineTimes(medicine.id).executeAsList()
@@ -51,7 +59,7 @@ class LocalMedicineDS(
         )
     }
 
-    override fun getMedicineByName(name: String): Either<Throwable, Medicine> = Either.catch {
+    override suspend fun getMedicineByName(name: String): Either<Throwable, Medicine> = Either.catch {
         medicinesDB.medicinesQueries.getMedicineByName(name).executeAsOne()
     }.map { medicine ->
         val times = medicinesDB.medicinesQueries.getMedicineTimes(medicine.id).executeAsList()
@@ -67,7 +75,7 @@ class LocalMedicineDS(
         )
     }
 
-    override fun addMedicine(medicine: Medicine) = Either.catch {
+    override suspend fun addMedicine(medicine: Medicine) = Either.catch {
         medicinesDB.transaction {
             medicinesDB.medicinesQueries.addMedicineLocal(
                 name = medicine.name,
@@ -86,8 +94,8 @@ class LocalMedicineDS(
         }
     }
 
-    override fun getMedicinesForToday(): Either<Throwable, List<MedicineTaken>> = Either.catch {
-        medicinesDB.transactionWithResult {
+    override suspend fun getMedicinesForToday(): Either<Throwable, List<MedicineTaken>> = Either.catch {
+        val medicines = medicinesDB.transactionWithResult {
             val medicines = medicinesDB.medicinesQueries.getAllMedicines().executeAsList()
                 .map { medicineEntry ->
                     val times = medicinesDB.medicinesQueries.getMedicineTimes(medicineEntry.id).executeAsList()
@@ -123,9 +131,17 @@ class LocalMedicineDS(
             }
 
         }
-    }
 
-    override fun markMedicineAsTaken(medicine: Medicine, medicineTime: MedicineTime): Either<Throwable, Unit> = Either.catch {
+        either {
+            ensure(medicines.isNotEmpty()) {
+                RuntimeException("No medicines found")
+            }
+
+            medicines
+        }
+    }.flatten()
+
+    override suspend fun markMedicineAsTaken(medicine: Medicine, medicineTime: MedicineTime): Either<Throwable, Unit> = Either.catch {
         val timeId =
             medicinesDB.medicinesQueries.getMedicineTimeId(medicineId = medicine.id, medicineTime = medicineTime)
                 .executeAsOneOrNull()
