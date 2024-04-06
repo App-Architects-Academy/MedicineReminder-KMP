@@ -66,11 +66,11 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
-            implementation("app.cash.sqldelight:android-driver:2.0.1")
+            implementation(libs.android.driver)
         }
         // or iosMain, windowsMain, etc.
         sourceSets.nativeMain.dependencies {
-            implementation("app.cash.sqldelight:native-driver:2.0.1")
+            implementation(libs.native.driver)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -80,36 +80,36 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
-            // Multiplatform
+            // Voyager Multiplatform
 
             // Navigator
-            implementation("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
+            implementation(libs.voyager.navigator)
 
             // Screen Model
-            implementation("cafe.adriel.voyager:voyager-screenmodel:$voyagerVersion")
+            implementation(libs.voyager.screenmodel)
 
             // BottomSheetNavigator
-            implementation("cafe.adriel.voyager:voyager-bottom-sheet-navigator:$voyagerVersion")
+            implementation(libs.voyager.bottomSheetNavigator)
 
             // TabNavigator
-            implementation("cafe.adriel.voyager:voyager-tab-navigator:$voyagerVersion")
+            implementation(libs.voyager.tab.navigator)
 
             // Transitions
-            implementation("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
+            implementation(libs.voyager.transitions)
 
             //arrow
-            implementation("io.arrow-kt:arrow-core:1.2.2")
-            implementation("io.arrow-kt:arrow-core-serialization:1.2.2")
+            implementation(libs.arrow.core)
+            implementation(libs.arrow.core.serialization)
 
             //date-time
-            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0-RC.2")
+            implementation(libs.kotlinx.datetime)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
         }
 
         sourceSets.jvmMain.dependencies {
-            implementation("app.cash.sqldelight:sqlite-driver:2.0.1")
+            implementation(libs.sqlite.driver)
         }
     }
 }
