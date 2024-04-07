@@ -95,41 +95,38 @@ class LocalMedicineDS(
     }
 
     override suspend fun getMedicinesForToday(): Either<Throwable, List<MedicineTaken>> = Either.catch {
-        val medicines = medicinesDB.transactionWithResult {
-            val medicines = medicinesDB.medicinesQueries.getAllMedicines().executeAsList()
-                .map { medicineEntry ->
-                    val times = medicinesDB.medicinesQueries.getMedicineTimes(medicineEntry.id).executeAsList()
-                    val medicine = Medicine(
-                        id = medicineEntry.id,
-                        name = medicineEntry.name,
-                        foodOrder = medicineEntry.foodOrder,
-                        times = times.map {
-                            it.medicineTime
-                        }
-                    )
+        val medicinesList = medicinesDB.medicinesQueries.getAllMedicines().executeAsList()
+            .map { medicineEntry ->
+                val times = medicinesDB.medicinesQueries.getMedicineTimes(medicineEntry.id).executeAsList()
+                val medicine = Medicine(
+                    id = medicineEntry.id,
+                    name = medicineEntry.name,
+                    foodOrder = medicineEntry.foodOrder,
+                    times = times.map {
+                        it.medicineTime
+                    }
+                )
 
-                    Pair(medicine, times)
-                }
-
-            medicines.flatMap { medicineAndTimes ->
-                medicineAndTimes.second.map { medicineTimes ->
-
-                    val takenOn = medicinesDB.medicinesTakenQueries.isMedicineTakenForDate(
-                        date = getTodayDateFormatted(),
-                        medicineTimeId = medicineTimes.id
-                    ).executeAsOneOrNull()
-
-                    MedicineTaken(
-                        medicine = medicineAndTimes.first,
-                        timeStamp = takenOn?.let {
-                            Instant.fromEpochMilliseconds(takenOn)
-                        },
-                        medicineTime = medicineTimes.medicineTime,
-                        isTaken = takenOn != null
-                    )
-                }
+                Pair(medicine, times)
             }
 
+        val medicines = medicinesList.flatMap { medicineAndTimes ->
+            medicineAndTimes.second.map { medicineTimes ->
+
+                val takenOn = medicinesDB.medicinesTakenQueries.isMedicineTakenForDate(
+                    date = getTodayDateFormatted(),
+                    medicineTimeId = medicineTimes.id
+                ).executeAsOneOrNull()
+
+                MedicineTaken(
+                    medicine = medicineAndTimes.first,
+                    timeStamp = takenOn?.let {
+                        Instant.fromEpochMilliseconds(takenOn)
+                    },
+                    medicineTime = medicineTimes.medicineTime,
+                    isTaken = takenOn != null
+                )
+            }
         }
 
         either {

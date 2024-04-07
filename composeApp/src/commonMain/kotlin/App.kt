@@ -25,7 +25,7 @@ import medicinereminder.composeapp.generated.resources.compose_multiplatform
 @Preview
 fun App(diProvider: DIProvider) {
 
-    val repository by rememberSaveable {
+    val repository by remember {
         mutableStateOf(
             diProvider.getMedicinesRepository(diProvider.getMedicinesDS(diProvider.getDB()))
         )

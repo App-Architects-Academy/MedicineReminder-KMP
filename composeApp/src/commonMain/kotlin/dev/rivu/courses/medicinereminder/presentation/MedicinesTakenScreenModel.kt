@@ -6,6 +6,8 @@ import arrow.core.recover
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import dev.rivu.courses.medicinereminder.data.MedicineRepository
+import dev.rivu.courses.medicinereminder.data.models.Medicine
+import dev.rivu.courses.medicinereminder.data.models.MedicineTime
 import dev.rivu.courses.medicinereminder.presentation.states.MedicinesListState
 import dev.rivu.courses.medicinereminder.presentation.states.MedicinesTakenState
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MedicinesTakenScreenModel(
-    val repository: MedicineRepository
+    private val repository: MedicineRepository
 ) : ScreenModel {
     private val _state: MutableStateFlow<MedicinesTakenState> = MutableStateFlow(MedicinesTakenState())
     val state: StateFlow<MedicinesTakenState> = _state.asStateFlow()
@@ -52,6 +54,27 @@ class MedicinesTakenScreenModel(
                     }
                 }
             )
+        }
+    }
+
+    fun markMedicineAsTaken(medicine: Medicine, medicineTime: MedicineTime) {
+        _state.update {
+            it.copy(isLoading = true)
+        }
+        screenModelScope.launch {
+            val update = repository.markMedicineAsTaken(medicine, medicineTime)
+
+            update.fold(
+                ifLeft = { error ->
+                    _state.update {
+                        it.copy(errorDetails = error.stackTraceToString())
+                    }
+                },
+                ifRight = {
+                    getData()
+                }
+            )
+
         }
     }
 }
